@@ -11,7 +11,7 @@
 #define FALSE 0
 
 #define MAX_PATH_LENGTH 256
-#define MAX_FILE_COUNT  16
+#define MAX_FILE_COUNT  32
 
 #define DOT_CHR 46
 #define CUR_DIR ".\0"
@@ -21,7 +21,6 @@ struct item {
         char name[MAX_PATH_LENGTH];
         int  is_dir;
 };
-
 
 int get_dir(char (*path)[MAX_PATH_LENGTH], int show_all, struct item (*lc_itms)[MAX_FILE_COUNT], int *item_c) {
         DIR *dir = opendir(*path);
@@ -60,9 +59,8 @@ int get_dir(char (*path)[MAX_PATH_LENGTH], int show_all, struct item (*lc_itms)[
                 (*item_c)++;
 
                 if (*item_c >= MAX_FILE_COUNT) {
-                        printf("Too many files!\n");
                         closedir(dir);
-                        return FALSE;
+                        return TRUE;
                 }
         }
 
@@ -86,8 +84,8 @@ int tree_dir(char (*path)[MAX_PATH_LENGTH], int max_depth, int show_all, int dep
         char rel_path[MAX_PATH_LENGTH];
 
         for (int i = 0; i < item_c; ++i) {
-                for (int j = 0; j < depth; ++j) {
-                        if ((indents & i) != 0) {
+                for (int j = depth - 1; j >= 0; --j) {
+                        if (((indents & (1 << j)) >> j)) {
                                 printf("│   "); 
                         } else {
                                 printf("    ");
@@ -105,7 +103,7 @@ int tree_dir(char (*path)[MAX_PATH_LENGTH], int max_depth, int show_all, int dep
                 if (local_items[i].is_dir) {
                         printf("/\n");
                         sprintf(rel_path, "%s/%s", *path, local_items[i].name);
-                        int child_indents = (indents + 1) + !(item_c - 1 == i);
+                        int child_indents = (indents << 1) + !(item_c - 1 == i);
                         if (!tree_dir(&rel_path, max_depth, show_all, depth + 1, child_indents)) {
                                 return FALSE;
                         }
@@ -115,6 +113,8 @@ int tree_dir(char (*path)[MAX_PATH_LENGTH], int max_depth, int show_all, int dep
         }
 
         return TRUE;
+
+
 }
 
 int get_args(int argc, char **argv, char (*path)[MAX_PATH_LENGTH], int *depth, int *show_all) {
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
         }
 
         printf("%s\n", path);
-        if (!tree_dir(&path, depth, show_all, 0, 1)) {
+        if (!tree_dir(&path, depth, show_all, 0, 0)) {
                 printf("Could not print tree.\n");
         }
 
