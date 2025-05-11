@@ -2,8 +2,8 @@ CMD = gcc
 
 FILES = main.c
 
-OUTPUT = tree
+OUTPUT = -o tree
 
 all : compile
 compile:
-	@${CMD} ${FILES} -o ${OUTPUT}
+	${CMD} ${FILES} ${OUTPUT}
