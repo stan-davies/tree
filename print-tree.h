@@ -19,8 +19,6 @@ int tree(char (*pth)[MPL], int max_dpt, int dpt, int shw, int ind) {
                 return TRUE;
         }
 
-        int ret = FALSE;
-
         struct item lc_itms[MFC];
         int li_c;
         char sub_pth[MPL];
@@ -28,7 +26,7 @@ int tree(char (*pth)[MPL], int max_dpt, int dpt, int shw, int ind) {
 
         if (!get_dir(pth, shw, &lc_itms, &li_c)) {
                 printf("Could not access local files at '%s'\n", *pth);
-                goto exit;
+                return FALSE;
         }
 
         for (int i = 0; i < li_c; ++i) {
@@ -53,18 +51,14 @@ int tree(char (*pth)[MPL], int max_dpt, int dpt, int shw, int ind) {
                         sprintf(sub_pth, "%s/%s", *pth, lc_itms[i].name);
                         sub_ind = (ind << 1) + !(li_c - 1 == i);
                         if (!tree(&sub_pth, max_dpt, dpt + 1, shw, sub_ind)) {
-                                goto exit;
+                                return FALSE;
                         }
                 } else {
                         printf("\n");
                 }
         }
 
-        ret = TRUE;
-exit:
-//        free(sub_pth);
-//        free(lc_itms);
-        return ret;
+        return TRUE;
 }
 
 #endif
