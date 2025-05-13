@@ -11,7 +11,7 @@
 #define FALSE 0
 
 #define MPL 256 // max path length
-#define MFC 32  // max file count
+#define MFC 128 // max file count
 
 #define DOT_CHR 46
 #define CUR_DIR ".\0"

@@ -40,9 +40,15 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
                 if ((it_st.st_mode & S_IFMT) == S_IFDIR) {
                         curr.is_dir = TRUE;
                         dirs[dirc++] = curr;
+                        if (dirc >= MFC / 4) {
+                                goto exit;
+                        }
                 } else {
                         curr.is_dir = FALSE;
                         fils[filc++] = curr;
+                        if (filc >= MFC / 4 * 3) {
+                                goto exit;
+                        }
                 }
 
                 if (dirc + filc >= MFC) {
