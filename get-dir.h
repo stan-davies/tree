@@ -9,6 +9,8 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
 
         int ret = FALSE;
 
+// Scrap this split and just fill the main array.
+// Sort it at the end, put directories before files and go alphabetically.
         *li_c = 0;
         struct item dirs[MFC / 4];
         int dirc = 0;
@@ -64,6 +66,35 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
                         (*lc_itms)[i] = fils[i - dirc];
                 }
         }
+
+        int swaps;
+        int sz_i;
+        int sz_iS;
+
+        struct item swp;
+
+        for (;;) {
+                swaps = FALSE;
+                for (int i = 0; i < *li_c - 1; ++i) {
+                        sz_i  = strcmp((*lc_itms)[i].name, "")
+                                        - 100 * (*lc_itms)[i].is_dir;
+                        sz_iS = strcmp((*lc_itms)[i + 1].name, "")
+                                        - 100 * (*lc_itms)[i + 1].is_dir;
+
+                        if (sz_iS < sz_i) {
+                                swp = (*lc_itms)[i];
+                                (*lc_itms)[i] = (*lc_itms)[i + 1];
+                                (*lc_itms)[i + 1] = swp;
+                                swaps = TRUE;
+                        }
+                }
+                
+                if (!swaps) {
+                        break;
+                }
+        }
+                        
+                        
 
         ret = TRUE;
 exit:
