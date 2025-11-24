@@ -1,6 +1,27 @@
 #ifndef GET_DIR_H
 #define GET_DIR_H
 
+void place(
+        struct item     itm     ,
+        struct item   **arr     ,
+        int            *arr_c
+) {
+        int p = 0;
+
+        for (; p < *arr_c; ++p) {
+                if (strcmp(itm.name, (*arr)[p].name) < 0) {
+                        break;
+                }
+        }
+
+        for (int i = *arr_c; i > p; --i) {
+                (*arr)[i] = (*arr)[i - 1];
+        }
+        
+        (*arr)[p] = itm;
+        (*arr_c)++;
+}
+
 int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
         DIR *dir = opendir(*pth);
         if (NULL == dir) {
@@ -9,12 +30,10 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
 
         int ret = FALSE;
 
-// Scrap this split and just fill the main array.
-// Sort it at the end, put directories before files and go alphabetically.
         *li_c = 0;
-        struct item dirs[MFC / 4];
+        struct item *dirs = calloc(MFC / 4, sizeof(struct item));
         int dirc = 0;
-        struct item fils[MFC / 4 * 3];
+        struct item *fils = calloc(MFC / 4 * 3, sizeof(struct item));
         int filc = 0;
 
         char rel_pth[MPL];
@@ -41,13 +60,13 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
                 strcpy(curr.name, dp->d_name);
                 if ((it_st.st_mode & S_IFMT) == S_IFDIR) {
                         curr.is_dir = TRUE;
-                        dirs[dirc++] = curr;
+                        place(curr, &dirs, &dirc);
                         if (dirc >= MFC / 4) {
                                 goto exit;
                         }
                 } else {
                         curr.is_dir = FALSE;
-                        fils[filc++] = curr;
+                        place(curr, &fils, &filc);
                         if (filc >= MFC / 4 * 3) {
                                 goto exit;
                         }
@@ -67,39 +86,15 @@ int get_dir(char (*pth)[MPL], int shw, struct item (*lc_itms)[MFC], int *li_c) {
                 }
         }
 
-        int swaps;
-        int sz_i;
-        int sz_iS;
-
-        struct item swp;
-
-        for (;;) {
-                swaps = FALSE;
-                for (int i = 0; i < *li_c - 1; ++i) {
-                        sz_i  = strcmp((*lc_itms)[i].name, "")
-                                        - 100 * (*lc_itms)[i].is_dir;
-                        sz_iS = strcmp((*lc_itms)[i + 1].name, "")
-                                        - 100 * (*lc_itms)[i + 1].is_dir;
-
-                        if (sz_iS < sz_i) {
-                                swp = (*lc_itms)[i];
-                                (*lc_itms)[i] = (*lc_itms)[i + 1];
-                                (*lc_itms)[i + 1] = swp;
-                                swaps = TRUE;
-                        }
-                }
-                
-                if (!swaps) {
-                        break;
-                }
-        }
-                        
-                        
-
         ret = TRUE;
 exit:
         closedir(dir);
         return ret;
+
+        free(dirs);
+        dirs = NULL;
+        free(fils);
+        fils = NULL;
 }
 
 #endif
